@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  hapi-fhir:
+    image: hapiproject/hapi:latest
+    container_name: hapi-fhir
+    ports:
+      - "8080:8080"
+    environment:
+      - hapi.fhir.fhir_version=R4
+      - hapi.fhir.security.basic_enabled=false
+      - hapi.fhir.security.oauth.enabled=true
+      - hapi.fhir.security.oauth.token_endpoint=http://keycloak:8080/realms/medapp/protocol/openid-connect/token
+      - hapi.fhir.security.oauth.introspection_endpoint=http://keycloak:8080/realms/medapp/protocol/openid-connect/token/introspect
+      - hapi.fhir.security.oauth.jwks_url=http://keycloak:8080/realms/medapp/protocol/openid-connect/certs
+      - hapi.fhir.security.oauth.client_id=fhir-client
+      - hapi.fhir.security.oauth.realm_name=medapp
+    depends_on:
+      - keycloak
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.2
+    container_name: keycloak
+    command: start-dev
+    ports:
+      - "8888:8080"
+    environment:
+      - KEYCLOAK_ADMIN=sevi
+      - KEYCLOAK_ADMIN_PASSWORD=Fhir1234
